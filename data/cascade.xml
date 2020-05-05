@@ -1,5 +1,3 @@
-<!--限于机能和图片数据来源太少以至于最后跑出来的只有params.xml几个阶段数据，
-所以找来此数据来源于大佬：Cheney_渣渣杰 ，缺点是这位大佬的素材中缺少戴眼镜的样本-->
 <?xml version="1.0"?>
 <opencv_storage>
 <cascade>
@@ -2140,3 +2138,8 @@
           19 2 1 1 2.</_></rects>
       <tilted>0</tilted></_></features></cascade>
 </opencv_storage>
+
+
+<!-- 限于机能和图片数据来源太少以至于最后跑出来的只有params.xml几个阶段数据，
+所以找来此数据来源于大佬：Cheney_渣渣杰 ，缺点是这位大佬的素材中缺少戴眼镜的样本 -->
+
