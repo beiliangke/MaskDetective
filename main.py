@@ -7,10 +7,20 @@ import pygame
 import time
 import threading
 
-pspeech =r'music/pass.mp3'
+# 载入音频并初始化
+pspeech = r'music/pass.mp3'
 yspeech = r'music/dai.mp3'
 nspeech = r'music/meidai.mp3'
 pygame.mixer.init()
+
+
+# 载入样本
+detector = cv2.CascadeClassifier('data\\haarcascades\\haarcascade_frontalface_default.xml')
+eyes_detector = cv2.CascadeClassifier('data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml')
+mask_detector = cv2.CascadeClassifier('data\\cascade.xml')
+font = cv2.FONT_HERSHEY_SIMPLEX
+cap = cv2.VideoCapture(0)
+flag = True
 
 
 # 尝试pygame播放mp3
@@ -19,17 +29,17 @@ pygame.mixer.init()
 # time.sleep(10)
 # pygame.mixer.music.stop()
 
+# yes的音频载入
 def music_yes():
     timeplay = 4
     global maskOn, lock
-    while True:
-        if maskOn == 1:
-            pygame.mixer.music.load(pspeech)
-            print("-----通过口罩检测-----")
-            pygame.mixer.music.play()
-            time.sleep(timeplay)
-            maskOn == 0
-        time.sleep(0)
+    if maskOn == 1:
+        pygame.mixer.music.load(pspeech)
+        print("-----通过口罩检测-----")
+        pygame.mixer.music.play()
+        time.sleep(timeplay)
+        pygame.mixer.music.stop()
+        maskOn == 0
 
 
 def music_no():
@@ -57,18 +67,6 @@ def music_no():
 #         time.sleep(0)
 
 
-detector = cv2.CascadeClassifier('data\\haarcascades\\haarcascade_frontalface_default.xml')
-eyes_detector = cv2.CascadeClassifier('data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml')
-mask_detector = cv2.CascadeClassifier('data\\cascade.xml')
-font = cv2.FONT_HERSHEY_SIMPLEX
-cap = cv2.VideoCapture(0)
-flag=True
-# event_obj = threading.Event()  # 创建一个事件
-thread_yes=threading.Thread(target=music_yes)
-thread_yes.setDaemon(True)
-
-
-
 
 def gamma_trans(img, gamma):  # gamma函数处理
     gamma_table = [np.power(x / 255.0, gamma) * 255.0 for x in range(256)]  # 建立映射表
@@ -92,17 +90,19 @@ while True:
     mask_face = mask_detector.detectMultiScale(image_gamma_correct, 1.1, 4)
     # 参数分别为 图片、左上角坐标，右下角坐标，颜色，厚度
     # face = img[y:y + h, x:x + w]  # 裁剪坐标为[y0:y1, x0:x1]
+    if len(faces) <= 0:
+        flag = True
     if len(mask_face) <= 0:
         for (x, y, w, h) in faces:
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
             cv2.putText(img, 'NO MASK', (x - 25, y - 25), font, 1.2, (255, 0, 0), 2)
     if len(mask_face) and flag:
-        flag=False
+        flag = False
         global maskOn
         maskOn = 1
         print("------------戴口罩")
+        thread_yes = threading.Thread(target=music_yes)
         thread_yes.start()
-
 
     for (x2, y2, w2, h2) in mask_face:
         cv2.rectangle(img, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)
